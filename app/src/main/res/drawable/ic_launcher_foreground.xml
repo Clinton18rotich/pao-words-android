@@ -4,16 +4,16 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Red playing card background -->
+    <!-- Blue Book Cover -->
     <path
-        android:fillColor="#D32F2F"
-        android:pathData="M34,28 h40 a4,4 0 0 1 4,4 v44 a4,4 0 0 1 -4,4 h-40 a4,4 0 0 1 -4,-4 v-44 a4,4 0 0 1 4,-4 z" />
-    <!-- White inner card -->
+        android:fillColor="#1976D2"
+        android:pathData="M32,28 h36 a4,4 0 0 1 4,4 v44 a4,4 0 0 1 -4,4 h-36 a4,4 0 0 1 -4,-4 v-44 a4,4 0 0 1 4,-4 z" />
+    <!-- White Book Pages -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M38,32 h32 a2,2 0 0 1 2,2 v40 a2,2 0 0 1 -2,2 h-32 a2,2 0 0 1 -2,-2 v-40 a2,2 0 0 1 2,-2 z" />
-    <!-- Heart symbol (simple path) -->
+        android:pathData="M36,34 h28 a2,2 0 0 1 2,2 v36 a2,2 0 0 1 -2,2 h-28 a2,2 0 0 1 -2,-2 v-36 a2,2 0 0 1 2,-2 z" />
+    <!-- Golden 'W' -->
     <path
-        android:fillColor="#D32F2F"
-        android:pathData="M54,64 C54,64 44,56 44,50 C44,46 47,44 50,44 C52,44 54,46 54,48 C54,46 56,44 58,44 C61,44 64,46 64,50 C64,56 54,64 54,64 Z" />
+        android:fillColor="#FFC107"
+        android:pathData="M44,42 L47,62 L50,52 L53,62 L56,42 L53,42 L51.5,52 L50,46 L48.5,52 L47,42 Z" />
 </vector>
