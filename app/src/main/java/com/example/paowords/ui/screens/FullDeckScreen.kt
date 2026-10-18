@@ -26,14 +26,10 @@ fun FullDeckScreen() {
     }
 
     Column(modifier = Modifier.fillMaxSize().background(DarkBg).padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-        Text("⏱️ Full Deck Timer", color = Orange, fontSize = 26.sp, fontWeight = FontWeight.Bold)
-        Text("Test yourself memorizing all 52 cards", color = LightGrey, fontSize = 14.sp)
+        Text("⏱️ Words Timer", color = Orange, fontSize = 26.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(32.dp))
-
         Text(String.format("%02d:%02d", seconds / 60, seconds % 60), color = Orange, fontSize = 80.sp, fontWeight = FontWeight.Bold)
-
         Spacer(Modifier.height(32.dp))
-
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             Button(onClick = { isRunning = !isRunning }, colors = ButtonDefaults.buttonColors(containerColor = if (isRunning) Red else Green)) {
                 Text(if (isRunning) "⏸ Pause" else "▶ Start")

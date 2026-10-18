@@ -17,8 +17,8 @@ import com.example.paowords.ui.screens.*
 import com.example.paowords.ui.theme.*
 
 sealed class Screen(val route: String, val label: String, val icon: ImageVector) {
-    object Teach : Screen("teach", "Teach", Icons.Filled.Style)
-    object Flashcards : Screen("flashcards", "Cards", Icons.Filled.ViewCarousel)
+    object Teach : Screen("teach", "Teach", Icons.Filled.Book)
+    object Flashcards : Screen("flashcards", "Flash", Icons.Filled.Style)
     object Practice : Screen("practice", "Practice", Icons.Filled.FitnessCenter)
     object Timer : Screen("timer", "Timer", Icons.Filled.Timer)
     object Table : Screen("table", "Table", Icons.Filled.List)
@@ -26,7 +26,7 @@ sealed class Screen(val route: String, val label: String, val icon: ImageVector)
 }
 
 @Composable
-fun CardNavGraph() {
+fun WordNavGraph() {
     val navController = rememberNavController()
     val items = listOf(Screen.Teach, Screen.Flashcards, Screen.Practice, Screen.Timer, Screen.Table, Screen.HowTo)
 

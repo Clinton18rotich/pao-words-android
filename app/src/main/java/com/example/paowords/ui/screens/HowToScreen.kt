@@ -16,15 +16,12 @@ import com.example.paowords.ui.theme.*
 @Composable
 fun HowToScreen() {
     Column(modifier = Modifier.fillMaxSize().background(DarkBg).verticalScroll(rememberScrollState()).padding(16.dp)) {
-        Text("🧠 How to Memorize Cards", color = Orange, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+        Text("🧠 How to Memorize Words", color = Orange, fontSize = 24.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(16.dp))
-        Text("1. Joshua Foer's Method", color = Orange, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-        Text("Cards are memorized in groups of 3. Card 1 = Person, Card 2 = Action, Card 3 = Object. This forms one vivid scene. 18 scenes memorize the whole 52-card deck.", color = Color(0xFFDDDDDD), fontSize = 14.sp)
+        Text("1. Phonetic Substitution", color = Orange, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text("Abstract words are hard to visualize. Turn them into concrete images that sound the same. (e.g., 'Justice' = 'Just Ice').", color = Color(0xFFDDDDDD), fontSize = 14.sp)
         Spacer(Modifier.height(16.dp))
-        Text("2. The 4 Suits", color = Orange, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-        Text("♥ Hearts = Family\n♦ Diamonds = Celebrities\n♣ Clubs = Athletes\n♠ Spades = Historical Villains", color = Color(0xFFDDDDDD), fontSize = 14.sp)
-        Spacer(Modifier.height(16.dp))
-        Text("3. Use the App", color = Orange, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-        Text("Type 'A♥' in Teach to see the Person, Action, and Object. Use Flashcards to test yourself. The stories include smells, tastes, and emotions to lock the cards in your memory.", color = Color(0xFFDDDDDD), fontSize = 14.sp)
+        Text("2. Link the Images", color = Orange, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text("If you need to memorize a list of words, turn each into an image and link them together into one crazy story.", color = Color(0xFFDDDDDD), fontSize = 14.sp)
     }
 }

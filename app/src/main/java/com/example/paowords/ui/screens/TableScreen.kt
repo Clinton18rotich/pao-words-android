@@ -11,7 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.paowords.data.CARD_DATA
+import com.example.paowords.data.WORD_DATA
 import com.example.paowords.ui.theme.*
 
 @Composable
@@ -19,10 +19,13 @@ fun TableScreen() {
     Column(modifier = Modifier.fillMaxSize().background(DarkBg).padding(8.dp)) {
         Text("📊 Master Table", color = Orange, fontSize = 22.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(8.dp))
         LazyColumn {
-            items(CARD_DATA) { entry ->
-                Row(modifier = Modifier.fillMaxWidth().background(if (entry.color == "Red") Color(0xFF2A1010) else Color(0xFF1A1A1A)).padding(10.dp)) {
-                    Text(entry.card, color = Orange, fontWeight = FontWeight.Bold, modifier = Modifier.width(50.dp))
-                    Column { Text(entry.person, color = White); Text("${entry.action} ${entry.objectName}", color = LightGrey, fontSize = 12.sp) }
+            items(WORD_DATA) { entry ->
+                Row(modifier = Modifier.fillMaxWidth().background(if (entry.id.toInt() % 2 == 0) Color(0xFF1A1A1A) else DarkSurface).padding(10.dp)) {
+                    Text(entry.emoji, fontSize = 24.sp, modifier = Modifier.padding(end = 8.dp))
+                    Column {
+                        Text(entry.word, color = White, fontWeight = FontWeight.Bold)
+                        Text("${entry.phonetic} • ${entry.image}", color = LightGrey, fontSize = 12.sp)
+                    }
                 }
             }
         }
