@@ -1,58 +1,129 @@
 package com.example.paowords.ui.screens
 
-import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.paowords.data.WORD_DATA
 import com.example.paowords.ui.theme.*
+import kotlinx.coroutines.delay
 
 @Composable
 fun PracticeScreen() {
-    var words by remember { mutableStateOf(List(3) { WORD_DATA.random() }) }
-    var revealed by remember { mutableStateOf(false) }
+    var gameState by remember { mutableStateOf("setup") } // setup, memorizing, testing, results
+    var wordCount by remember { mutableStateOf(5) }
+    var currentWords by remember { mutableStateOf(listOf<com.example.paowords.data.WordEntry>()) }
+    var userAnswers by remember { mutableStateOf(mapOf<String, String>()) }
+    var timeLeft by remember { mutableStateOf(5) }
+    var score by remember { mutableStateOf(0) }
 
-    Column(modifier = Modifier.fillMaxSize().background(DarkBg).padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-        Text("🧠 Practice Mode", color = Orange, fontSize = 26.sp, fontWeight = FontWeight.Bold)
-        Text("Link the 3 Words into a Story", color = LightGrey, fontSize = 14.sp)
-        Spacer(Modifier.height(24.dp))
+    LaunchedEffect(gameState) {
+        if (gameState == "memorizing") {
+            timeLeft = 5
+            while (timeLeft > 0) {
+                delay(1000L)
+                timeLeft--
+            }
+            gameState = "testing"
+        }
+    }
 
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            words.forEach { word ->
-                Card(modifier = Modifier.weight(1f).height(160.dp), colors = CardDefaults.cardColors(containerColor = DarkSurface)) {
-                    Column(modifier = Modifier.fillMaxSize().padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                        Text(word.emoji, fontSize = 40.sp)
-                        Text(word.word, color = Orange, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+    Column(modifier = Modifier.fillMaxSize().background(DarkBg).padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Text("🏋️ Speed Recall", color = Orange, fontSize = 26.sp, fontWeight = FontWeight.Bold)
+        
+        if (gameState == "setup") {
+            Text("How many words do you want to memorize?", color = LightGrey, modifier = Modifier.padding(16.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf(5, 10, 15).forEach { count ->
+                    Button(onClick = { wordCount = count }, colors = ButtonDefaults.buttonColors(containerColor = if (wordCount == count) Orange else DarkSurface, contentColor = if (wordCount == count) Color.Black else White)) {
+                        Text("$count")
                     }
                 }
             }
-        }
-
-        Spacer(Modifier.height(24.dp))
-        Button(onClick = { revealed = !revealed }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = Orange, contentColor = Color.Black)) {
-            Text(if (revealed) "Hide Story" else "Reveal Story")
-        }
-        Spacer(Modifier.height(16.dp))
-
-        AnimatedVisibility(visible = revealed, enter = fadeIn() + expandVertically(), exit = fadeOut() + shrinkVertically()) {
-            Column(modifier = Modifier.fillMaxWidth().background(DarkSurface, RoundedCornerShape(10.dp)).padding(16.dp)) {
-                Text("Link them: ${words[0].word} + ${words[1].word} + ${words[2].word}", color = White, fontWeight = FontWeight.Bold)
-                Spacer(Modifier.height(8.dp))
-                Text("Imagine: ${words[0].image} is doing something with ${words[1].image} and ${words[2].image}.", color = Green, fontSize = 14.sp)
+            Spacer(Modifier.height(24.dp))
+            Button(onClick = {
+                currentWords = WORD_DATA.shuffled().take(wordCount)
+                userAnswers = currentWords.associate { it.word to "" }
+                gameState = "memorizing"
+            }, colors = ButtonDefaults.buttonColors(containerColor = Green)) {
+                Text("Start Memorizing")
             }
-        }
-
-        Spacer(Modifier.height(24.dp))
-        Button(onClick = { words = List(3) { WORD_DATA.random() }; revealed = false }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF555555))) {
-            Text("🎲 Shuffle New Words")
+        } 
+        
+        else if (gameState == "memorizing") {
+            Text("Memorize these words! (${timeLeft}s)", color = Red, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(16.dp))
+            LazyVerticalGrid(columns = GridCells.Fixed(2), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(currentWords) { word ->
+                    Card(colors = CardDefaults.cardColors(containerColor = DarkSurface)) {
+                        Text(word.word, color = White, fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(16.dp).fillMaxWidth(), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                    }
+                }
+            }
+        } 
+        
+        else if (gameState == "testing") {
+            Text("Type the FIRST LETTER of each word!", color = Orange, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(16.dp))
+            LazyVerticalGrid(columns = GridCells.Fixed(2), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(currentWords) { word ->
+                    Column {
+                        Text(word.word, color = LightGrey, fontSize = 12.sp)
+                        OutlinedTextField(
+                            value = userAnswers[word.word] ?: "",
+                            onValueChange = { input ->
+                                if (input.length <= 1) {
+                                    userAnswers = userAnswers + (word.word to input.uppercase())
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Orange, focusedTextColor = White)
+                        )
+                    }
+                }
+            }
+            Spacer(Modifier.height(16.dp))
+            Button(onClick = {
+                score = currentWords.count { userAnswers[it.word] == it.word.take(1).uppercase() }
+                gameState = "results"
+            }, colors = ButtonDefaults.buttonColors(containerColor = Green)) {
+                Text("Check Answers")
+            }
+        } 
+        
+        else if (gameState == "results") {
+            Text("Results", color = Orange, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(16.dp))
+            Text("You got $score out of $wordCount correct!", color = White, fontSize = 20.sp)
+            Spacer(Modifier.height(24.dp))
+            LazyVerticalGrid(columns = GridCells.Fixed(2), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(currentWords) { word ->
+                    val isCorrect = userAnswers[word.word] == word.word.take(1).uppercase()
+                    Card(colors = CardDefaults.cardColors(containerColor = if (isCorrect) Color(0xFF1E2A1E) else Color(0xFF2A1E1E))) {
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            Text(word.word, color = White, fontWeight = FontWeight.Bold)
+                            Text("You wrote: ${userAnswers[word.word] ?: "-"}", color = if (isCorrect) Green else Red, fontSize = 12.sp)
+                        }
+                    }
+                }
+            }
+            Spacer(Modifier.height(16.dp))
+            Button(onClick = { gameState = "setup" }, colors = ButtonDefaults.buttonColors(containerColor = Orange, contentColor = Color.Black)) {
+                Text("Play Again")
+            }
         }
     }
 }
