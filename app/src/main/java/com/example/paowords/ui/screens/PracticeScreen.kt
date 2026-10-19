@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -13,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.paowords.data.WORD_DATA
@@ -21,18 +24,16 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun PracticeScreen() {
-    var gameState by remember { mutableStateOf("setup") } // setup, memorizing, testing, results
+    var gameState by remember { mutableStateOf("setup") }
     var wordCount by remember { mutableStateOf(5) }
     var currentWords by remember { mutableStateOf(listOf<com.example.paowords.data.WordEntry>()) }
     var userAnswers by remember { mutableStateOf(mapOf<String, String>()) }
     
-    // Timer State
     var timeLeft by remember { mutableStateOf(5) }
     var totalTimeMs by remember { mutableStateOf(0L) }
-    
     var score by remember { mutableStateOf(0) }
 
-    // Memorization Countdown
+    // Countdown
     LaunchedEffect(gameState) {
         if (gameState == "memorizing") {
             timeLeft = 5
@@ -40,12 +41,12 @@ fun PracticeScreen() {
                 delay(1000L)
                 timeLeft--
             }
-            totalTimeMs = 0L // Reset the stopwatch for the typing phase
+            totalTimeMs = 0L
             gameState = "testing"
         }
     }
 
-    // Typing Stopwatch (Runs during testing)
+    // Stopwatch
     LaunchedEffect(gameState) {
         if (gameState == "testing") {
             while (gameState == "testing") {
@@ -55,18 +56,30 @@ fun PracticeScreen() {
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize().background(DarkBg).padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+    // The Main Column is Scrollable so buttons never get lost
+    Column(modifier = Modifier.fillMaxSize().background(DarkBg).padding(16.dp).verticalScroll(rememberScrollState()), horizontalAlignment = Alignment.CenterHorizontally) {
         Text("🏋️ Speed Recall", color = Orange, fontSize = 26.sp, fontWeight = FontWeight.Bold)
         
         if (gameState == "setup") {
-            Text("How many words do you want to memorize?", color = LightGrey, modifier = Modifier.padding(16.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("How many words do you want to memorize?", color = LightGrey, modifier = Modifier.padding(16.dp), textAlign = TextAlign.Center)
+            
+            // 5, 10, 15, 20, 30, 40 selector
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                 listOf(5, 10, 15).forEach { count ->
-                    Button(onClick = { wordCount = count }, colors = ButtonDefaults.buttonColors(containerColor = if (wordCount == count) Orange else DarkSurface, contentColor = if (wordCount == count) Color.Black else White)) {
+                    Button(onClick = { wordCount = count }, colors = ButtonDefaults.buttonColors(containerColor = if (wordCount == count) Orange else DarkSurface, contentColor = if (wordCount == count) Color.Black else White), contentPadding = PaddingValues(8.dp)) {
                         Text("$count")
                     }
                 }
             }
+            Spacer(Modifier.height(8.dp))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                listOf(20, 30, 40).forEach { count ->
+                    Button(onClick = { wordCount = count }, colors = ButtonDefaults.buttonColors(containerColor = if (wordCount == count) Orange else DarkSurface, contentColor = if (wordCount == count) Color.Black else White), contentPadding = PaddingValues(8.dp)) {
+                        Text("$count")
+                    }
+                }
+            }
+            
             Spacer(Modifier.height(24.dp))
             Button(onClick = {
                 currentWords = WORD_DATA.shuffled().take(wordCount)
@@ -80,46 +93,47 @@ fun PracticeScreen() {
         else if (gameState == "memorizing") {
             Text("Memorize these words! (${timeLeft}s)", color = Red, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(16.dp))
-            LazyVerticalGrid(columns = GridCells.Fixed(2), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            LazyVerticalGrid(columns = GridCells.Fixed(2), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.heightIn(max = 400.dp)) {
                 items(currentWords) { word ->
                     Card(colors = CardDefaults.cardColors(containerColor = DarkSurface)) {
-                        Text(word.word, color = White, fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(16.dp).fillMaxWidth(), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                        Text(word.word, color = White, fontSize = 16.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(12.dp).fillMaxWidth(), textAlign = TextAlign.Center)
                     }
                 }
             }
         } 
         
         else if (gameState == "testing") {
-            // Stopwatch Display
             Text(String.format("⏱️ %.1fs", totalTimeMs / 1000.0), color = Green, fontSize = 24.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             Text("Type the FIRST LETTER of each word!", color = Orange, fontSize = 16.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(16.dp))
             
-            // The words are HIDDEN here (we only show the input boxes)
-            LazyVerticalGrid(columns = GridCells.Fixed(2), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            // Dynamic grid: 2 columns for <= 15, 3 columns for > 15
+            val columns = if (wordCount > 15) GridCells.Fixed(3) else GridCells.Fixed(2)
+            LazyVerticalGrid(columns = columns, horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.heightIn(max = 500.dp)) {
                 items(currentWords) { word ->
-                    Column {
-                        OutlinedTextField(
-                            value = userAnswers[word.word] ?: "",
-                            onValueChange = { input ->
-                                if (input.length <= 1) {
-                                    userAnswers = userAnswers + (word.word to input.uppercase())
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            placeholder = { Text("?") },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Orange, focusedTextColor = White)
-                        )
-                    }
+                    OutlinedTextField(
+                        value = userAnswers[word.word] ?: "",
+                        onValueChange = { input ->
+                            if (input.length <= 1) {
+                                userAnswers = userAnswers + (word.word to input.uppercase())
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = { Text("?", fontSize = 14.sp) },
+                        textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center, fontSize = 14.sp),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Orange, focusedTextColor = White),
+                        contentPadding = PaddingValues(8.dp)
+                    )
                 }
             }
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(24.dp))
             Button(onClick = {
                 score = currentWords.count { userAnswers[it.word] == it.word.take(1).uppercase() }
                 gameState = "results"
-            }, colors = ButtonDefaults.buttonColors(containerColor = Green)) {
+            }, colors = ButtonDefaults.buttonColors(containerColor = Green), modifier = Modifier.fillMaxWidth()) {
                 Text("Check Answers")
             }
         } 
@@ -127,22 +141,24 @@ fun PracticeScreen() {
         else if (gameState == "results") {
             Text("Results", color = Orange, fontSize = 24.sp, fontWeight = FontWeight.Bold)
             Text(String.format("Final Time: %.1fs", totalTimeMs / 1000.0), color = Green, fontSize = 18.sp)
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(8.dp))
             Text("You got $score out of $wordCount correct!", color = White, fontSize = 20.sp)
-            Spacer(Modifier.height(24.dp))
-            LazyVerticalGrid(columns = GridCells.Fixed(2), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Spacer(Modifier.height(16.dp))
+            
+            val columns = if (wordCount > 15) GridCells.Fixed(3) else GridCells.Fixed(2)
+            LazyVerticalGrid(columns = columns, horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.heightIn(max = 500.dp)) {
                 items(currentWords) { word ->
                     val isCorrect = userAnswers[word.word] == word.word.take(1).uppercase()
                     Card(colors = CardDefaults.cardColors(containerColor = if (isCorrect) Color(0xFF1E2A1E) else Color(0xFF2A1E1E))) {
-                        Column(modifier = Modifier.padding(12.dp)) {
-                            Text(word.word, color = White, fontWeight = FontWeight.Bold)
-                            Text("You wrote: ${userAnswers[word.word] ?: "-"}", color = if (isCorrect) Green else Red, fontSize = 12.sp)
+                        Column(modifier = Modifier.padding(8.dp)) {
+                            Text(word.word, color = White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                            Text("You wrote: ${userAnswers[word.word] ?: "-"}", color = if (isCorrect) Green else Red, fontSize = 10.sp)
                         }
                     }
                 }
             }
             Spacer(Modifier.height(16.dp))
-            Button(onClick = { gameState = "setup" }, colors = ButtonDefaults.buttonColors(containerColor = Orange, contentColor = Color.Black)) {
+            Button(onClick = { gameState = "setup" }, colors = ButtonDefaults.buttonColors(containerColor = Orange, contentColor = Color.Black), modifier = Modifier.fillMaxWidth()) {
                 Text("Play Again")
             }
         }
