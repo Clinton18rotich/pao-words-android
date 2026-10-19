@@ -146,28 +146,30 @@ fun PracticeScreen() {
                 items(currentWords) { word ->
                     OutlinedTextField(
                         value = userAnswers[word.word] ?: "",
-                        // FIX: Explicitly declare (input: String) to help the compiler
                         onValueChange = { input: String ->
                             if (input.length <= 1) {
                                 userAnswers = userAnswers + (word.word to input.uppercase())
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("?", fontSize = 14.sp) },
-                        // FIX: Use explicit TextStyle instead of LocalTextStyle.current
                         textStyle = TextStyle(textAlign = TextAlign.Center, fontSize = 14.sp, color = White),
+                        placeholder = { Text("?", fontSize = 14.sp, color = LightGrey) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Orange),
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Orange, unfocusedBorderColor = Color.Gray),
                         contentPadding = PaddingValues(8.dp)
                     )
                 }
             }
             Spacer(Modifier.height(24.dp))
-            Button(onClick = {
-                score = currentWords.count { userAnswers[it.word] == it.word.take(1).uppercase() }
-                gameState = "results"
-            }, colors = ButtonDefaults.buttonColors(containerColor = Green), modifier = Modifier.fillMaxWidth()) {
+            Button(
+                onClick = {
+                    score = currentWords.count { userAnswers[it.word] == it.word.take(1).uppercase() }
+                    gameState = "results"
+                }, 
+                colors = ButtonDefaults.buttonColors(containerColor = Green), 
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 Text("Check Answers")
             }
         } 
@@ -190,7 +192,11 @@ fun PracticeScreen() {
                 }
             }
             Spacer(Modifier.height(16.dp))
-            Button(onClick = { gameState = "setup" }, colors = ButtonDefaults.buttonColors(containerColor = Orange, contentColor = Color.Black), modifier = Modifier.fillMaxWidth()) {
+            Button(
+                onClick = { gameState = "setup" }, 
+                colors = ButtonDefaults.buttonColors(containerColor = Orange, contentColor = Color.Black), 
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 Text("Play Again")
             }
         }
