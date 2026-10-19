@@ -20,7 +20,6 @@ sealed class Screen(val route: String, val label: String, val icon: ImageVector)
     object Teach : Screen("teach", "Teach", Icons.Filled.Book)
     object Flashcards : Screen("flashcards", "Flash", Icons.Filled.Style)
     object Practice : Screen("practice", "Practice", Icons.Filled.FitnessCenter)
-    object Timer : Screen("timer", "Timer", Icons.Filled.Timer)
     object Table : Screen("table", "Table", Icons.Filled.List)
     object HowTo : Screen("howto", "Info", Icons.Filled.Info)
 }
@@ -28,7 +27,7 @@ sealed class Screen(val route: String, val label: String, val icon: ImageVector)
 @Composable
 fun WordNavGraph() {
     val navController = rememberNavController()
-    val items = listOf(Screen.Teach, Screen.Flashcards, Screen.Practice, Screen.Timer, Screen.Table, Screen.HowTo)
+    val items = listOf(Screen.Teach, Screen.Flashcards, Screen.Practice, Screen.Table, Screen.HowTo)
 
     Scaffold(
         containerColor = DarkBg,
@@ -58,7 +57,6 @@ fun WordNavGraph() {
             composable(Screen.Teach.route) { TeachScreen() }
             composable(Screen.Flashcards.route) { FlashcardsScreen() }
             composable(Screen.Practice.route) { PracticeScreen() }
-            composable(Screen.Timer.route) { FullDeckScreen() }
             composable(Screen.Table.route) { TableScreen() }
             composable(Screen.HowTo.route) { HowToScreen() }
         }

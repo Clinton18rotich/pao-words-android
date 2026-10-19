@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -26,9 +25,14 @@ fun PracticeScreen() {
     var wordCount by remember { mutableStateOf(5) }
     var currentWords by remember { mutableStateOf(listOf<com.example.paowords.data.WordEntry>()) }
     var userAnswers by remember { mutableStateOf(mapOf<String, String>()) }
+    
+    // Timer State
     var timeLeft by remember { mutableStateOf(5) }
+    var totalTimeMs by remember { mutableStateOf(0L) }
+    
     var score by remember { mutableStateOf(0) }
 
+    // Memorization Countdown
     LaunchedEffect(gameState) {
         if (gameState == "memorizing") {
             timeLeft = 5
@@ -36,7 +40,18 @@ fun PracticeScreen() {
                 delay(1000L)
                 timeLeft--
             }
+            totalTimeMs = 0L // Reset the stopwatch for the typing phase
             gameState = "testing"
+        }
+    }
+
+    // Typing Stopwatch (Runs during testing)
+    LaunchedEffect(gameState) {
+        if (gameState == "testing") {
+            while (gameState == "testing") {
+                delay(100L)
+                totalTimeMs += 100L
+            }
         }
     }
 
@@ -75,12 +90,16 @@ fun PracticeScreen() {
         } 
         
         else if (gameState == "testing") {
+            // Stopwatch Display
+            Text(String.format("⏱️ %.1fs", totalTimeMs / 1000.0), color = Green, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(8.dp))
             Text("Type the FIRST LETTER of each word!", color = Orange, fontSize = 16.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(16.dp))
+            
+            // The words are HIDDEN here (we only show the input boxes)
             LazyVerticalGrid(columns = GridCells.Fixed(2), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(currentWords) { word ->
                     Column {
-                        Text(word.word, color = LightGrey, fontSize = 12.sp)
                         OutlinedTextField(
                             value = userAnswers[word.word] ?: "",
                             onValueChange = { input ->
@@ -89,6 +108,7 @@ fun PracticeScreen() {
                                 }
                             },
                             modifier = Modifier.fillMaxWidth(),
+                            placeholder = { Text("?") },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                             colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Orange, focusedTextColor = White)
                         )
@@ -106,6 +126,7 @@ fun PracticeScreen() {
         
         else if (gameState == "results") {
             Text("Results", color = Orange, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            Text(String.format("Final Time: %.1fs", totalTimeMs / 1000.0), color = Green, fontSize = 18.sp)
             Spacer(Modifier.height(16.dp))
             Text("You got $score out of $wordCount correct!", color = White, fontSize = 20.sp)
             Spacer(Modifier.height(24.dp))
