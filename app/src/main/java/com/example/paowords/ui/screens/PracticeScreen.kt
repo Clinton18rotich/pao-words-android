@@ -56,14 +56,12 @@ fun PracticeScreen() {
         }
     }
 
-    // The Main Column is Scrollable so buttons never get lost
     Column(modifier = Modifier.fillMaxSize().background(DarkBg).padding(16.dp).verticalScroll(rememberScrollState()), horizontalAlignment = Alignment.CenterHorizontally) {
         Text("🏋️ Speed Recall", color = Orange, fontSize = 26.sp, fontWeight = FontWeight.Bold)
         
         if (gameState == "setup") {
             Text("How many words do you want to memorize?", color = LightGrey, modifier = Modifier.padding(16.dp), textAlign = TextAlign.Center)
             
-            // 5, 10, 15, 20, 30, 40 selector
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                 listOf(5, 10, 15).forEach { count ->
                     Button(onClick = { wordCount = count }, colors = ButtonDefaults.buttonColors(containerColor = if (wordCount == count) Orange else DarkSurface, contentColor = if (wordCount == count) Color.Black else White), contentPadding = PaddingValues(8.dp)) {
@@ -108,9 +106,9 @@ fun PracticeScreen() {
             Text("Type the FIRST LETTER of each word!", color = Orange, fontSize = 16.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(16.dp))
             
-            // Dynamic grid: 2 columns for <= 15, 3 columns for > 15
             val columns = if (wordCount > 15) GridCells.Fixed(3) else GridCells.Fixed(2)
-            LazyVerticalGrid(columns = columns, horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.heightIn(max = 500.dp)) {
+            // Added a fixed height to prevent the scroll conflict
+            LazyVerticalGrid(columns = columns, horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.height(400.dp)) {
                 items(currentWords) { word ->
                     OutlinedTextField(
                         value = userAnswers[word.word] ?: "",
@@ -146,7 +144,8 @@ fun PracticeScreen() {
             Spacer(Modifier.height(16.dp))
             
             val columns = if (wordCount > 15) GridCells.Fixed(3) else GridCells.Fixed(2)
-            LazyVerticalGrid(columns = columns, horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.heightIn(max = 500.dp)) {
+            // Added a fixed height here too
+            LazyVerticalGrid(columns = columns, horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.height(400.dp)) {
                 items(currentWords) { word ->
                     val isCorrect = userAnswers[word.word] == word.word.take(1).uppercase()
                     Card(colors = CardDefaults.cardColors(containerColor = if (isCorrect) Color(0xFF1E2A1E) else Color(0xFF2A1E1E))) {
